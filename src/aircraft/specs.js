@@ -17,13 +17,13 @@ export const AIRCRAFT = [
   {
     id: 'b738', name: 'Boeing 737-800', maker: 'Boeing', type: 'airliner', icao: 'B738',
     role: 'Narrow-body twinjet', spoken: 'Boeing seven thirty seven', wake: 'M',
-    dims: { length: 39.47, span: 35.79, height: 12.55, fuseW: 3.76, fuseH: 4.01 },
-    wing: { area: 124.6, sweep: 25.02, taper: 0.2, dihedral: 6, tip: 'blended', tipH: 2.5 },
+    dims: { length: 39.47, fuseL: 38.02, span: 35.79, height: 12.55, fuseW: 3.76, fuseH: 4.01 },
+    wing: { area: 124.6, sweep: 25.02, taper: 0.2, dihedral: 6, tip: 'blended', tipH: 2.5, tipOut: 0.73 },
     tail: { hSpan: 14.35, hArea: 32.8, vArea: 26.4 },
     mass: { oew: 41413, mtow: 79016, mlw: 66361, fuel: 20894, payload: 20500 },
     eng: {
       count: 2, model: 'CFM56-7B26', thrust: 117 * kN, kind: 'hbpr', tsfc: tsfc(0.38),
-      fan: 1.55, nacD: 2.1, nacL: 4.2, span: [4.83], reverse: true,
+      fan: 1.55, nacD: 2.1, nacL: 4.2, span: [4.83], reverse: true, drop: 0.5,
     },
     aero: { cd0: 0.019, e: 0.8, cl0: 0.25, clMaxClean: 1.41, clMaxLand: 2.57, mcrit: 0.775 },
     flaps: BOEING_737_FLAPS, toFlap: 3, ldgFlap: 7,
@@ -36,7 +36,7 @@ export const AIRCRAFT = [
   {
     id: 'b748', name: 'Boeing 747-8', maker: 'Boeing', type: 'airliner', icao: 'B748',
     role: 'Four-engine wide-body', spoken: 'Boeing seven forty seven', wake: 'H',
-    dims: { length: 76.25, span: 68.45, height: 19.35, fuseW: 6.5, fuseH: 6.5, hump: { from: 0.03, to: 0.44, h: 2.55 } },
+    dims: { length: 76.25, fuseL: 74.2, span: 68.45, height: 19.35, fuseW: 6.5, fuseH: 6.5, hump: { from: 0.02, to: 0.46, h: 1.5 } },
     wing: { area: 554, sweep: 37.5, taper: 0.24, dihedral: 7, tip: 'raked', tipH: 0 },
     tail: { hSpan: 22.17, hArea: 136.6, vArea: 77.1 },
     mass: { oew: 220128, mtow: 447696, mlw: 312072, fuel: 193280, payload: 60000 },
@@ -50,12 +50,12 @@ export const AIRCRAFT = [
     ctl: { law: 'conventional', rollRate: 15, pitchRate: 5 },
     gear: { noseX: 7.9, wheelbase: 29.67, track: 11.0, cgH: 5.35, mainWheels: 4, noseWheels: 2, wheelD: 1.32, bogies: 4 },
     cruise: { mach: 0.855, alt: 35000, climb: 300 },
-    eye: { x: -0.55, y: 4.25, z: 7.4 },
+    eye: { x: -0.55, y: 3.35, z: 6.0 },
   },
   {
     id: 'b77w', name: 'Boeing 777-300ER', maker: 'Boeing', type: 'airliner', icao: 'B77W',
     role: 'Long-range wide-body twinjet', spoken: 'Boeing triple seven', wake: 'H',
-    dims: { length: 73.86, span: 64.8, height: 18.5, fuseW: 6.2, fuseH: 6.2 },
+    dims: { length: 73.86, fuseL: 73.08, span: 64.8, height: 18.5, fuseW: 6.2, fuseH: 6.2 },
     wing: { area: 436.8, sweep: 31.64, taper: 0.15, dihedral: 6, tip: 'raked', tipH: 0 },
     tail: { hSpan: 21.53, hArea: 101.3, vArea: 53.2 },
     mass: { oew: 167829, mtow: 351533, mlw: 251290, fuel: 145538, payload: 55000 },
@@ -74,7 +74,7 @@ export const AIRCRAFT = [
   {
     id: 'b789', name: 'Boeing 787-9 Dreamliner', maker: 'Boeing', type: 'airliner', icao: 'B789',
     role: 'Composite wide-body twinjet', spoken: 'Boeing seven eighty seven', wake: 'H',
-    dims: { length: 62.81, span: 60.12, height: 17.02, fuseW: 5.77, fuseH: 5.94 },
+    dims: { length: 62.81, fuseL: 62.0, span: 60.12, height: 17.02, fuseW: 5.77, fuseH: 5.94 },
     wing: { area: 360.5, sweep: 32.2, taper: 0.16, dihedral: 7.5, tip: 'raked', tipH: 0 },
     tail: { hSpan: 19.81, hArea: 77.3, vArea: 39.6 },
     mass: { oew: 128850, mtow: 254011, mlw: 192777, fuel: 101456, payload: 40000 },
@@ -94,7 +94,7 @@ export const AIRCRAFT = [
     id: 'a20n', name: 'Airbus A320neo', maker: 'Airbus', type: 'airliner', icao: 'A20N',
     role: 'Narrow-body twinjet', spoken: 'Airbus A three twenty', wake: 'M',
     dims: { length: 37.57, span: 35.8, height: 11.76, fuseW: 3.95, fuseH: 4.14 },
-    wing: { area: 122.6, sweep: 25, taper: 0.22, dihedral: 5.1, tip: 'sharklet', tipH: 2.43 },
+    wing: { area: 122.6, sweep: 25, taper: 0.22, dihedral: 5.1, tip: 'sharklet', tipH: 2.43, tipOut: 0.85 },
     tail: { hSpan: 12.45, hArea: 31, vArea: 21.5 },
     mass: { oew: 44300, mtow: 79000, mlw: 67400, fuel: 18990, payload: 19000 },
     eng: {
@@ -112,8 +112,8 @@ export const AIRCRAFT = [
   {
     id: 'a333', name: 'Airbus A330-300', maker: 'Airbus', type: 'airliner', icao: 'A333',
     role: 'Wide-body twinjet', spoken: 'Airbus A three thirty', wake: 'H',
-    dims: { length: 63.66, span: 60.3, height: 16.79, fuseW: 5.64, fuseH: 5.64 },
-    wing: { area: 361.6, sweep: 30, taper: 0.2, dihedral: 5, tip: 'blended', tipH: 2.0 },
+    dims: { length: 63.66, fuseL: 62.47, span: 60.3, height: 16.79, fuseW: 5.64, fuseH: 5.64 },
+    wing: { area: 361.6, sweep: 30, taper: 0.2, dihedral: 5, tip: 'blended', tipH: 2.3, tipOut: 1.15 },
     tail: { hSpan: 19.4, hArea: 71.45, vArea: 45.2 },
     mass: { oew: 129400, mtow: 242000, mlw: 187000, fuel: 109186, payload: 42000 },
     eng: {
@@ -131,8 +131,8 @@ export const AIRCRAFT = [
   {
     id: 'a359', name: 'Airbus A350-900', maker: 'Airbus', type: 'airliner', icao: 'A359',
     role: 'Composite wide-body twinjet', spoken: 'Airbus A three fifty', wake: 'H',
-    dims: { length: 66.8, span: 64.75, height: 17.05, fuseW: 5.96, fuseH: 6.09 },
-    wing: { area: 442, sweep: 31.9, taper: 0.17, dihedral: 6.5, tip: 'curved', tipH: 2.4 },
+    dims: { length: 66.8, fuseL: 65.26, span: 64.75, height: 17.05, fuseW: 5.96, fuseH: 6.09 },
+    wing: { area: 442, sweep: 31.9, taper: 0.17, dihedral: 6.5, tip: 'curved', tipH: 2.3, tipOut: 1.9 },
     tail: { hSpan: 18.73, hArea: 82.7, vArea: 51 },
     mass: { oew: 142400, mtow: 280000, mlw: 205000, fuel: 110523, payload: 45000 },
     eng: {
@@ -150,7 +150,7 @@ export const AIRCRAFT = [
   {
     id: 'a388', name: 'Airbus A380-800', maker: 'Airbus', type: 'airliner', icao: 'A388',
     role: 'Double-deck four-engine wide-body', spoken: 'Airbus A three eighty', wake: 'J',
-    dims: { length: 72.72, span: 79.75, height: 24.09, fuseW: 7.14, fuseH: 8.41 },
+    dims: { length: 72.72, fuseL: 70.4, span: 79.75, height: 24.09, fuseW: 7.14, fuseH: 8.41 },
     wing: { area: 845, sweep: 33.5, taper: 0.21, dihedral: 5.6, tip: 'fence', tipH: 2.3 },
     tail: { hSpan: 30.37, hArea: 205, vArea: 122 },
     mass: { oew: 277000, mtow: 575000, mlw: 394000, fuel: 253983, payload: 70000 },
@@ -170,7 +170,7 @@ export const AIRCRAFT = [
     id: 'f16', name: 'F-16C Fighting Falcon', maker: 'Lockheed Martin', type: 'fighter', icao: 'F16',
     role: 'Single-engine multirole fighter', spoken: 'F sixteen', wake: 'L',
     dims: { length: 15.06, span: 9.96, height: 4.88, fuseW: 1.6, fuseH: 1.7 },
-    wing: { area: 27.87, sweep: 30, leSweep: 40, taper: 0.21, dihedral: 0, tip: 'rail', tipH: 0 },
+    wing: { area: 27.87, sweep: 30, leSweep: 40, taper: 0.21, dihedral: 0, tip: 'rail', tipH: 0, tipOut: 0.26 },
     tail: { hSpan: 5.58, hArea: 5.9, vArea: 5.1 },
     mass: { oew: 8573, mtow: 19187, mlw: 12000, fuel: 3175, payload: 600 },
     eng: {
@@ -189,7 +189,7 @@ export const AIRCRAFT = [
     id: 'f18', name: 'F/A-18E Super Hornet', maker: 'Boeing', type: 'fighter', icao: 'F18S',
     role: 'Twin-engine carrier strike fighter', spoken: 'Super Hornet', wake: 'L',
     dims: { length: 18.31, span: 13.62, height: 4.88, fuseW: 2.5, fuseH: 1.75 },
-    wing: { area: 46.5, sweep: 20, leSweep: 29, taper: 0.35, dihedral: -3, tip: 'rail', tipH: 0 },
+    wing: { area: 46.5, sweep: 20, leSweep: 29, taper: 0.35, dihedral: -3, tip: 'rail', tipH: 0, tipOut: 0.3 },
     tail: { hSpan: 7.0, hArea: 9.3, vArea: 10.0 },
     mass: { oew: 14552, mtow: 29937, mlw: 20000, fuel: 6780, payload: 700 },
     eng: {
@@ -258,8 +258,7 @@ export function deriveGeometry(spec) {
   const noseLoad = fighter ? 0.12 : 0.08;
   // Distance from the nose to the CG.
   const cgX = gear.noseX + gear.wheelbase * (1 - noseLoad);
-  const b = wing.tip === 'blended' || wing.tip === 'sharklet' || wing.tip === 'curved'
-    ? dims.span - 0.5 : dims.span;          // planform span without the tip device overhang
+  const b = dims.span - 2 * (wing.tipOut || 0);   // planform span without the tip device overhang
   const semi = b / 2;
   const cr = (2 * wing.area) / (b * (1 + wing.taper));   // trapezoid root chord at centreline
   const ct = cr * wing.taper;

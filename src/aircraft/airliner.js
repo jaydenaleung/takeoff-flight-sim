@@ -6,14 +6,14 @@ import { deriveGeometry } from './specs.js';
 import { DEG, clamp, lerp, smoothstep } from '../core/units.js';
 
 export const LIVERIES = {
-  b738: { accent: '#0b3a82', accent2: '#d8232a', title: 'TAKEOFF' },
-  b748: { accent: '#9c1c2b', accent2: '#e9b949', title: 'TAKEOFF' },
-  b77w: { accent: '#102a54', accent2: '#c9a24a', title: 'TAKEOFF' },
-  b789: { accent: '#0e6ba8', accent2: '#7fd1f0', title: 'TAKEOFF' },
-  a20n: { accent: '#00756f', accent2: '#f28c28', title: 'TAKEOFF' },
-  a333: { accent: '#1d6b3a', accent2: '#b8d94a', title: 'TAKEOFF' },
-  a359: { accent: '#23272e', accent2: '#3fa7ff', title: 'TAKEOFF' },
-  a388: { accent: '#4b2a7b', accent2: '#d9b25a', title: 'TAKEOFF' },
+  b738: { accent: '#0b3a82', accent2: '#d8232a', title: 'TAKEOFF', tail: 'chevron' },
+  b748: { accent: '#9c1c2b', accent2: '#e9b949', title: 'TAKEOFF', tail: 'sun' },
+  b77w: { accent: '#102a54', accent2: '#c9a24a', title: 'TAKEOFF', tail: 'bands' },
+  b789: { accent: '#0e6ba8', accent2: '#7fd1f0', title: 'TAKEOFF', tail: 'wave' },
+  a20n: { accent: '#00756f', accent2: '#f28c28', title: 'TAKEOFF', tail: 'bands' },
+  a333: { accent: '#1d6b3a', accent2: '#b8d94a', title: 'TAKEOFF', tail: 'wave' },
+  a359: { accent: '#23272e', accent2: '#3fa7ff', title: 'TAKEOFF', tail: 'chevron' },
+  a388: { accent: '#4b2a7b', accent2: '#d9b25a', title: 'TAKEOFF', tail: 'sun' },
 };
 
 /** Fuselage radius/centre-line as a function of distance from the nose. */
@@ -146,6 +146,47 @@ function paintFuselage(spec, shape, livery, detail) {
   return tex;
 }
 
+/** Tail artwork: u runs from the leading edge to the trailing edge, v from root to tip. */
+function paintTail(livery) {
+  if (typeof document === 'undefined') return null;
+  const W = 256, H = 512;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  g.fillStyle = livery.accent; g.fillRect(0, 0, W, H);
+  const a2 = livery.accent2, wh = 'rgba(255,255,255,0.92)';
+  // canvas y = 0 is the fin tip, y = H the root
+  if (livery.tail === 'sun') {
+    for (let i = 5; i >= 0; i--) {
+      g.beginPath(); g.arc(W * 0.42, H * 1.02, 70 + i * 62, 0, Math.PI * 2);
+      g.fillStyle = i % 2 ? livery.accent : a2; g.globalAlpha = i % 2 ? 1 : 0.95 - i * 0.1; g.fill();
+    }
+    g.globalAlpha = 1;
+  } else if (livery.tail === 'bands') {
+    g.save(); g.translate(W / 2, H / 2); g.rotate(-0.62);
+    g.fillStyle = a2; g.fillRect(-400, 30, 800, 86);
+    g.fillStyle = wh; g.fillRect(-400, 132, 800, 22);
+    g.fillStyle = a2; g.fillRect(-400, 170, 800, 34);
+    g.restore();
+  } else if (livery.tail === 'wave') {
+    g.fillStyle = a2;
+    g.beginPath(); g.moveTo(0, H); g.bezierCurveTo(W * 0.5, H * 0.92, W * 0.55, H * 0.42, W, H * 0.2); g.lineTo(W, H); g.fill();
+    g.strokeStyle = wh; g.lineWidth = 12;
+    g.beginPath(); g.moveTo(0, H * 0.98); g.bezierCurveTo(W * 0.48, H * 0.9, W * 0.53, H * 0.4, W, H * 0.17); g.stroke();
+  } else {
+    g.lineJoin = 'miter'; g.lineCap = 'butt';
+    for (let i = 0; i < 4; i++) {
+      const y = H * 0.9 - i * 96;
+      g.strokeStyle = i === 1 ? wh : a2; g.lineWidth = i === 1 ? 16 : 40;
+      g.beginPath(); g.moveTo(-20, y + 70); g.lineTo(W * 0.5, y - 40); g.lineTo(W + 20, y + 70); g.stroke();
+    }
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+}
+
 function fanTexture() {
   if (typeof document === 'undefined') return null;
   const c = document.createElement('canvas');
@@ -264,6 +305,7 @@ export function buildAirliner(spec, opts = {}) {
     paint: new THREE.MeshStandardMaterial({ color: 0xf2f3f5, roughness: 0.38, metalness: 0.15, side: THREE.DoubleSide }),
     accent: new THREE.MeshStandardMaterial({ color: livery.accent, roughness: 0.4, metalness: 0.15, side: THREE.DoubleSide }),
     nacelle: new THREE.MeshStandardMaterial({ color: 0xf2f3f5, roughness: 0.36, metalness: 0.2, side: THREE.DoubleSide }),
+    tail: null,
     metal: new THREE.MeshStandardMaterial({ color: 0xb8bcc4, roughness: 0.3, metalness: 0.85, side: THREE.DoubleSide }),
     metalDark: new THREE.MeshStandardMaterial({ color: 0x4a4d52, roughness: 0.5, metalness: 0.8, side: THREE.DoubleSide }),
     dark: new THREE.MeshStandardMaterial({ color: 0x15171a, roughness: 0.8, metalness: 0.1, side: THREE.DoubleSide }),
@@ -271,6 +313,11 @@ export function buildAirliner(spec, opts = {}) {
     fan: new THREE.MeshStandardMaterial({ color: 0xffffff, map: _fanTex, roughness: 0.6, metalness: 0.5 }),
     spinner: new THREE.MeshStandardMaterial({ color: 0xe8e8ea, roughness: 0.3, metalness: 0.6 }),
   };
+
+  const tailTex = paintTail(livery);
+  mats.tail = tailTex
+    ? new THREE.MeshStandardMaterial({ color: 0xffffff, map: tailTex, roughness: 0.4, metalness: 0.15, side: THREE.DoubleSide })
+    : mats.accent;
 
   // ---------------------------------------------------------------- fuselage
   {
@@ -354,7 +401,7 @@ export function buildAirliner(spec, opts = {}) {
     const mb = new MeshBuilder();
     const secs = [sec(semi), ...wingletSections(sec(semi), spec.wing.tipOut, spec.wing.tipH, tip === 'curved')];
     loftSurface(mb, secs, 0, 1, { n: 7, capB: true });
-    const m = new THREE.Mesh(mb.build(), tip === 'curved' ? mats.wing : mats.paint);
+    const m = new THREE.Mesh(mb.build(), mats.accent);
     m.castShadow = true; right.add(m);
   } else if (tip === 'fence') {
     const s0 = sec(semi), mb = new MeshBuilder();
@@ -415,13 +462,13 @@ export function buildAirliner(spec, opts = {}) {
   const vSec = (h) => {
     const f = h / hFin;
     const c = vCr + (vCt - vCr) * ((h - 0.9) / (hFin - 0.9));
-    return { le: [0, yRoot + h, vTipLE - (hFin - h) * vTanLE], c, t: 0.09, up: [1, 0, 0], camber: 0, f };
+    return { le: [0, yRoot + h, vTipLE - (hFin - h) * vTanLE], c, t: 0.09, up: [1, 0, 0], camber: 0, f, v: f };
   };
   {
     const mb = new MeshBuilder();
-    loftSurface(mb, [vSec(0), vSec(hFin)], 0, 0.68, { n: 7, back: true, capB: true });
-    const m = new THREE.Mesh(mb.build(), mats.accent); m.castShadow = true; group.add(m);
-    const rud = hingedSurface([vSec(1.0), vSec(hFin - 0.05)], 0.68, 1, mats.accent);
+    loftSurface(mb, [vSec(0), vSec(hFin)], 0, 0.68, { n: 7, back: true, capB: true, uvChord: true });
+    const m = new THREE.Mesh(mb.build(), mats.tail); m.castShadow = true; group.add(m);
+    const rud = hingedSurface([vSec(1.0), vSec(hFin - 0.05)], 0.68, 1, mats.tail, { uvChord: true });
     rud.name = 'rudder'; group.add(rud);
   }
 

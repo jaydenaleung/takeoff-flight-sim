@@ -30,6 +30,10 @@ US Southwest, and full air traffic control on the real frequencies.
   phraseology, read-backs, taxi routes, vectors to the ILS, traffic sequencing, compliance
   monitoring, go-arounds and emergencies, spoken with speech synthesis. AI traffic shares the
   runway and the frequency.
+- **Look and feel** – the menu is a dispatch desk over the live airport: a departures-board
+  fleet list, a type sheet with a to-scale three-view drawing, and a boarding-pass flight
+  release. In flight the radio is a hardware panel with amber LCD frequency windows and a
+  printer-tape log. Airline tail artwork, glazed terminals and apron floodlights at night.
 - **Optional AI ATC** – with your own Anthropic API key (Settings → AI ATC), Claude understands
   free-form typed or spoken radio calls. The key stays in your browser's local storage and is
   sent only to the Anthropic API. Without a key the built-in controller handles everything.
@@ -123,27 +127,34 @@ python3 tools/bake_airports.py
 
 [INSTRUCTIONS.md](INSTRUCTIONS.md) is the step-by-step specification this repository follows.
 
-## Footprint of the build session
+## Footprint of the AI sessions
 
-This repository was produced in one AI coding session. The figures below are for that session
-at the time this section was written (the last commit adds slightly to them).
+This repository is produced in AI coding sessions. This section is updated at the end of every
+session (the rule is in [CLAUDE.md](CLAUDE.md)); the commit that writes it adds slightly to the
+figures. Token counts are measured, energy and water are estimates.
+
+### Session log
+
+| # | Dates | Work | Tokens processed | Cost | Energy (est.) | Water (est.) |
+|---|---|---|---:|---:|---:|---:|
+| 1 | 10 – 11 Nov 2026 | Initial build; interface redesign and night apron lighting | 50,894,381 | US$78.22 | ≈ 1.3 kWh | ≈ 1.4 L |
+| | | **Total** | **50,894,381** | **US$78.22** | **≈ 1.3 kWh** | **≈ 1.4 L** |
 
 ### Tokens (measured)
 
 Taken from the session's own usage record.
 
-| | Tokens |
-|---|---:|
-| Output (generated) | 539,460 |
-| Input, uncached | 145 |
-| Input written to the prompt cache | 2,682,036 |
-| Input re-read from the prompt cache | 35,488,299 |
-| **Total processed** | **38,709,940** |
+| Session 1 | Initial build | Redesign | Total |
+|---|---:|---:|---:|
+| Output (generated) | 539,460 | 75,048 | 614,508 |
+| Input, uncached | 145 | 2,166 | 2,311 |
+| Input written to the prompt cache | 2,682,036 | 76,105 | 2,758,141 |
+| Input re-read from the prompt cache | 35,488,299 | 12,031,122 | 47,519,421 |
+| **Total processed** | **38,709,940** | **12,184,441** | **50,894,381** |
+| Cost at API list prices | US$71.59 | US$6.63 | US$78.22 |
 
 - Cache reads dominate because every model request re-reads the conversation so far.
-- Context in use at the end: 824,210 of 1,000,000 tokens.
-- Reported cost at API list prices: US$71.59.
-- Elapsed time: about 29.5 hours from start to this commit, including long idle waits.
+- Elapsed time: about 30 hours from start to this commit, including long idle waits.
 - Separately, two live test requests to the Claude API for the AI ATC feature used 758 input
   and 66 output tokens in total.
 
@@ -152,20 +163,20 @@ Taken from the session's own usage record.
 Neither is reported for a session, and there is no published per-token figure for the model
 used, so these are order-of-magnitude estimates from the token counts above.
 
-| | Tokens | Assumed Wh per 1,000 tokens | Energy |
+| All sessions | Tokens | Assumed Wh per 1,000 tokens | Energy |
 |---|---:|---:|---:|
-| Output | 539,460 | 0.3 – 3 | 0.16 – 1.6 kWh |
-| Cache writes | 2,682,036 | 0.03 – 0.3 | 0.08 – 0.8 kWh |
-| Cache reads | 35,488,299 | 0.003 – 0.03 | 0.11 – 1.1 kWh |
-| **Total** | | | **0.35 – 3.5 kWh (about 1 kWh)** |
+| Output | 614,508 | 0.3 – 3 | 0.18 – 1.8 kWh |
+| Cache writes | 2,758,141 | 0.03 – 0.3 | 0.08 – 0.8 kWh |
+| Cache reads | 47,519,421 | 0.003 – 0.03 | 0.14 – 1.4 kWh |
+| **Total** | | | **0.41 – 4.1 kWh (about 1.3 kWh)** |
 
-- **Energy: roughly 1 kWh**, plausibly 0.35 – 3.5 kWh. The low end of the output rate comes
+- **Energy: roughly 1.3 kWh**, plausibly 0.41 – 4.1 kWh. The low end of the output rate comes
   from vendor-published figures of about 0.24 – 0.34 Wh for a typical short chat reply; the
   high end allows for a larger model working with a very long context. The rates for input
-  are assumptions.
-- **Water: roughly 1 litre**, plausibly 0.4 – 4 litres, using about 1.1 mL of on-site cooling
-  water per Wh (the ratio in Google's published per-prompt figures). Water used to generate
-  the electricity is not included and would add to this.
+  are assumptions. The single figure is the geometric middle of the range.
+- **Water: roughly 1.4 litres**, plausibly 0.45 – 4.5 litres, using about 1.1 mL of on-site
+  cooling water per Wh (the ratio in Google's published per-prompt figures). Water used to
+  generate the electricity is not included and would add to this.
 - Not included: the cloud container that ran builds and tests, terrain and airport data
   downloads, and model training.
 

@@ -1,7 +1,7 @@
 // Engine and systems display: N1, EGT, fuel flow, fuel, weight, flaps, gear, spoilers, brakes.
 import { clamp } from '../core/units.js';
 
-const FONT = (px, w = 600) => `${w} ${px}px "Roboto Mono", "DejaVu Sans Mono", Consolas, monospace`;
+const FONT = (px, w = 600) => `${w} ${px}px "B612 Mono", "Roboto Mono", "DejaVu Sans Mono", Consolas, monospace`;
 const C = { white: '#e8edf2', green: '#3df08c', amber: '#ffb52e', red: '#ff4136', cyan: '#55e0ff', dim: '#93a1b0' };
 
 function gauge(g, x, y, r, val, max, label, color, text) {

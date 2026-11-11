@@ -57,6 +57,9 @@ export class World {
     this.cities = buildCities(data.cities, (x, z) => this.hf.heightAt(x, z));
     this.scene.add(this.cities);
     this.active = new Map();          // icao -> scenery group
+    // apron floodlights: three real lights that hop between the masts nearest the aircraft
+    this.floods = [0, 1, 2].map(() => { const l = new THREE.PointLight(0xffe3b8, 0, 330, 2); this.scene.add(l); return l; });
+    this._masts = [];
     this.nearGround = true;
     this._g = { h: 0, water: false, paved: true };
     this.sceneryTimer = 0;
@@ -94,6 +97,25 @@ export class World {
     lightMaterial.uniforms.intensity.value = 0.22 + 0.78 * (1 - this.env.day) + 0.5 * this.env.inCloud;
     lightMaterial.uniforms.scale.value = this.renderer.domElement.height * 1.1;
     this.cities.material.emissiveIntensity = 0.55 * (1 - this.env.day);
+    // floodlights follow the three nearest masts and fade out with distance so swaps are never seen
+    {
+      const p = target || cam.position, near = this._masts;
+      near.length = 0;
+      for (const g of this.active.values()) {
+        const ap = g.userData.ap;
+        if (Math.hypot(ap.apron.c.x - p.x, ap.apron.c.z - p.z) > ap.apron.hl + 500) continue;
+        for (const m of g.userData.masts) { m.d = Math.hypot(m.x - p.x, m.z - p.z); if (m.d < 260) near.push(m); }
+      }
+      near.sort((a, b) => a.d - b.d);
+      const night = 1 - this.env.day;
+      for (let i = 0; i < 3; i++) {
+        const l = this.floods[i], m = near[i];
+        if (!m || night < 0.02) { l.intensity = 0; continue; }
+        const f = 1 - THREE.MathUtils.smoothstep(m.d, 170, 255);
+        l.position.set(m.x, m.y, m.z);
+        l.intensity = 9000 * night * f;
+      }
+    }
     // airport scenery around the camera
     this.sceneryTimer -= dt;
     if (this.sceneryTimer <= 0) {
@@ -110,7 +132,10 @@ export class World {
           this.scene.remove(g); disposeAirportScenery(g); this.active.delete(ap.icao);
         }
       }
-      for (const g of this.active.values()) g.userData.glass.emissiveIntensity = 0.9 * (1 - this.env.day);
+      for (const g of this.active.values()) {
+        g.userData.glass.emissiveIntensity = 0.9 * (1 - this.env.day);
+        if (g.userData.facade) g.userData.facade.emissiveIntensity = 0.8 * (1 - this.env.day);
+      }
     }
   }
 }

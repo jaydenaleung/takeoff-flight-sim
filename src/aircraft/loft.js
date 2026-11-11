@@ -103,10 +103,16 @@ export function aerofoil(sec, from = 0, to = 1, n = 10) {
  * Add a lifting-surface segment to a MeshBuilder: skins sections between chord fractions,
  * optionally closing the front/back cuts and the end ribs.
  */
-export function loftSurface(mb, secs, from = 0, to = 1, { n = 10, front = false, back = false, capA = false, capB = false } = {}) {
+export function loftSurface(mb, secs, from = 0, to = 1, { n = 10, front = false, back = false, capA = false, capB = false, uvChord = false } = {}) {
   const prof = secs.map((s) => aerofoil(s, from, to, n));
-  mb.loft(prof.map((p) => p.upper));
-  mb.loft(prof.map((p) => p.lower));
+  // optional texture coordinates: u = chord fraction, v = span fraction (sec.v if given)
+  const uv = uvChord ? (i, j) => {
+    const t = j / (n - 1);
+    const x = from === 0 ? to * (1 - Math.cos((t * Math.PI) / 2)) : from + (to - from) * t;
+    return [x, secs[i].v ?? i / (secs.length - 1)];
+  } : null;
+  mb.loft(prof.map((p) => p.upper), { uv });
+  mb.loft(prof.map((p) => p.lower), { uv });
   if (back) mb.loft(prof.map((p) => [p.upper[n - 1], p.lower[n - 1]]));
   if (front) mb.loft(prof.map((p) => [p.upper[0], p.lower[0]]));
   const ring = (p) => p.upper.concat(p.lower.slice().reverse());
@@ -120,9 +126,9 @@ export function loftSurface(mb, secs, from = 0, to = 1, { n = 10, front = false,
  * pivot object. The pivot's local +X is the hinge line, +Z points aft; a positive rotation about
  * X moves the trailing edge "down" (toward -up).
  */
-export function hingedSurface(secs, from, to, material, { n = 5 } = {}) {
+export function hingedSurface(secs, from, to, material, { n = 5, uvChord = false } = {}) {
   const mb = new MeshBuilder();
-  loftSurface(mb, secs, from, to, { n, front: true, capA: true, capB: true });
+  loftSurface(mb, secs, from, to, { n, front: true, capA: true, capB: true, uvChord });
   const geo = mb.build();
   const h = (s) => {
     const al = s.along || [0, 0, 1];

@@ -6,7 +6,7 @@ const C = {
   sky: '#2f7fd0', ground: '#8a5a2b', white: '#f2f4f6', mag: '#ff5cf4', green: '#3df08c', amber: '#ffb52e',
   red: '#ff4136', cyan: '#55e0ff', tape: 'rgba(22,30,40,0.92)', box: '#05080c', dim: '#93a1b0',
 };
-const FONT = (px, w = 600) => `${w} ${px}px "Roboto Mono", "DejaVu Sans Mono", Consolas, monospace`;
+const FONT = (px, w = 600) => `${w} ${px}px "B612 Mono", "Roboto Mono", "DejaVu Sans Mono", Consolas, monospace`;
 
 export function drawPFD(g, W, H, d) {
   g.clearRect(0, 0, W, H);

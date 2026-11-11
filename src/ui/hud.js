@@ -27,7 +27,7 @@ export class HUD {
         </div>
         <div class="log"></div>
         <div class="opts"></div>
-        <div class="tx"><input type="text" maxlength="200" placeholder="Enter — type a radio call" /><button class="mic" title="Hold Space to talk">🎙</button></div>
+        <div class="tx"><input type="text" maxlength="200" placeholder="Enter: type a radio call" /><button class="mic" title="Hold Space to talk">PTT</button></div>
       </div>
       <div class="msgs"></div>
       <div class="warn"></div>

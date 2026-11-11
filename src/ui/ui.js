@@ -66,7 +66,7 @@ export class UI {
   constructor(app) {
     this.app = app;
     this.root = document.getElementById('ui');
-    this.loading = el('div', 'loading', '<div class="brand"><h1>TAKEOFF</h1><span>Flight Simulator</span></div><div class="bar"><i></i></div><p></p>');
+    this.loading = el('div', 'loading', '<div class="wordmark big"><b>TAKEOFF</b><i>Flight Simulator</i></div><div class="keys"><div class="bar"><i></i></div></div><p></p>');
     this.root.appendChild(this.loading);
     this.overlay = el('div', 'overlay');
     this.root.appendChild(this.overlay);
@@ -261,7 +261,7 @@ export class UI {
       rows.push(`<tr><th>Runway</th><td>${r.airport.icao} ${r.end.id}</td></tr>`, `<tr><th>Past the threshold</th><td>${Math.round(r.dist)} m</td></tr>`,
         `<tr><th>Centreline</th><td>${Math.abs(r.offset).toFixed(1)} m ${r.offset > 0 ? 'right' : 'left'}</td></tr>`, `<tr><th>Runway remaining</th><td>${Math.round(r.remaining)} m</td></tr>`);
     } else rows.push('<tr><th>Surface</th><td>Off the runway</td></tr>');
-    this.hud.showCard(`<h4>Landing — ${grade} <span>${r.score}/100</span></h4><table>${rows.join('')}</table>`, 16);
+    this.hud.showCard(`<header><small>Landing report</small><b>${r.score}</b></header><div class="stamp">${grade}</div><table>${rows.join('')}</table>`, 16);
   }
   showParked() {
     const f = this.app.flight;

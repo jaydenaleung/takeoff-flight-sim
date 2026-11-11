@@ -160,8 +160,8 @@ export class Environment {
       eu.sunPosition.value.copy(this.sunDir);
       const old = this.envTarget;
       this.envTarget = this.pmrem.fromScene(this.envScene, 0, 0.1, 500);
-      this.scene.environment = this.envTarget.texture;
-      this.scene.environmentIntensity = 0.25 + 0.5 * day;
+      this.envTexture = this.envTarget.texture;
+      this.envIntensity = 0.08 + 0.34 * day;
       if (old) old.dispose();
     }
   }

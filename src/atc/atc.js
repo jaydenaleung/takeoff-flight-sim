@@ -42,7 +42,7 @@ export class ATC {
     this.com = { active: 121.5, standby: 121.5 };
     // initial state by start position
     const st = flight.start;
-    if (st === 'runway') { this.phase = 'holdshort'; this.xpdr = this.squawk; this.com.active = this.dep.freq.tower; this.com.standby = this.dep.freq.departure; this.cleared = true; }
+    if (st === 'runway') { this.phase = 'holdshort'; this.linedUp = true; this.xpdr = this.squawk; this.com.active = this.dep.freq.tower; this.com.standby = this.dep.freq.departure; this.cleared = true; }
     else if (st === 'final') { this.phase = 'final'; this.xpdr = this.squawk; this.com.active = this.dest.freq.tower; this.com.standby = this.dest.freq.ground; this.cleared = true; }
     else if (st === 'cruise') {
       this.phase = 'enroute'; this.xpdr = this.squawk; this.cleared = true;
@@ -190,7 +190,7 @@ export class ATC {
     // ---- tower (departure)
     if (t.role === 'tower' && t.ap === this.dep && ['taxi', 'holdshort', 'cleared', 'pushed', 'pre'].includes(ph) && out.onGround) {
       add(`Ready for departure, runway ${this.depEnd.id}`, () => {
-        this.pilot([name, ', ', cs, ', holding short ', RW(this.depEnd.id), ', ready for departure', this.pattern ? ', closed traffic' : '', '.']);
+        this.pilot([name, ', ', cs, this.linedUp ? ', ' : ', holding short ', RW(this.depEnd.id), ', ready for departure', this.pattern ? ', closed traffic' : '', '.']);
         this.requestTakeoff(t);
       });
       if (!this.pattern) add('Request closed traffic (stay in the pattern)', () => {
@@ -471,10 +471,12 @@ export class ATC {
     // ---- runway incursion
     if (out.onGround && surf && surf.type === 'runway' && ['pre', 'cleared', 'pushed', 'taxi', 'holdshort'].includes(ph) && Math.abs(surf.cross) < surf.rwy.width / 2 - 2) {
       const crossingOk = f.taxiRoute && f.taxiRoute.crossings && f.taxiRoute.crossings.includes(surf.rwy.id) || (f.taxiRoute && f.taxiRoute.backtrack && f.taxiRoute.backtrack.includes(surf.rwy.id));
-      if (!crossingOk && this.t - (this.warnT.inc || -99) > 45) {
+      const started = this.linedUp && surf.rwy === this.depEnd.rwy;       // flight began lined up
+      if (!crossingOk && !started && this.t - (this.warnT.inc || -99) > 45) {
         this.warnT.inc = this.t;
         const tw = this.fac(this.dep, 'tower');
-        this.atc(this.tuned() && this.tuned().ap === this.dep ? this.tuned() : tw, [cs, ', hold position. You have entered ', RW(surf.rwy.ends[0].id), ' without a clearance.'], { delay: 1 });
+        const rid = surf.rwy === this.depEnd.rwy ? this.depEnd.id : surf.rwy.ends[0].id;
+        this.atc(this.tuned() && this.tuned().ap === this.dep ? this.tuned() : tw, [cs, ', hold position. You have entered ', RW(rid), ' without a clearance.'], { delay: 1 });
       }
     }
     // ---- after takeoff

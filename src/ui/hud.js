@@ -18,7 +18,7 @@ export class HUD {
     this.root.style.display = 'none';
     root.appendChild(this.root);
     this.root.innerHTML = `
-      <div class="atc">
+      <div class="radiopanel">
         <div class="radio">
           <div class="com"><span class="lbl">COM1</span><span class="act" title="Active frequency"></span><button class="swap" title="Swap active / standby (Tab)">⇄</button><span class="stby" title="Standby — scroll to tune, Shift for MHz"></span></div>
           <div class="fac"></div>
@@ -161,6 +161,7 @@ export class HUD {
   start(flight, atc, warnings, traffic) {
     this.flight = flight; this.atc = atc; this.warnings = warnings; this.traffic = traffic;
     this.root.style.display = '';
+    this.resize(window.innerWidth, window.innerHeight);
     this.e.log.innerHTML = '';
     this.msgs.length = 0; this.e.msgs.innerHTML = '';
     this.e.card.style.display = 'none';
@@ -188,7 +189,7 @@ export class HUD {
   }
   showCard(html, ttl = 14) { this.e.card.innerHTML = html; this.e.card.style.display = ''; this.cardT = ttl; }
   toggleBig() { this.e.big.classList.toggle('on'); }
-  togglePanel() { this.visible = !this.visible; this.e.panel.style.display = this.visible ? '' : 'none'; this.root.querySelector('.atc').style.display = this.visible ? '' : 'none'; }
+  togglePanel() { this.visible = !this.visible; this.e.panel.style.display = this.visible ? '' : 'none'; this.root.querySelector('.radiopanel').style.display = this.visible ? '' : 'none'; }
   resize(w, h) { this.e.fhud.width = w; this.e.fhud.height = h; }
 
   update(dt) {
@@ -315,11 +316,14 @@ export class HUD {
         pitch: o.pitch, roll: o.roll, alpha: o.alpha, beta: o.beta, ias: o.ias, alt: o.altFt, hdg: hdgMag, mach: o.mach, g: o.nz,
         vs: o.vsFpm, ra: o.ra, fovDeg: app.world.camera.fov, gear: fm.gear > 0.5, ab: fm.engines.some((e) => e.ab > 0.05),
         ap: ap.on ? `AP ${ap.fma.lat} ${ap.fma.vert}` : '', ils,
+        bottom: this.visible ? this.e.fhud.height - this.e.panel.getBoundingClientRect().height - 14 : this.e.fhud.height,
       });
     }
   }
   choose(i) {
-    const op = this.opts && this.opts[i];
+    if (!this.atc) return;
+    // always act on the options as they are right now, not as last drawn
+    const op = this.atc.getOptions()[i];
     if (op && !op.label.startsWith('(')) { op.run(); this.lastOpts = ''; this.app.sound.click(); }
   }
 }

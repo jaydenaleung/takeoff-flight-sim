@@ -252,7 +252,8 @@ export class Flight {
     const fm = this.fm, m = this.model;
     m.group.position.copy(fm.pos);
     m.group.quaternion.copy(fm.quat);
-    const cam = this.world.camera;
+    const cam = this.world.camera, env = this.world.env;
+    if (env.envTexture) m.setEnvironment(env.envTexture, env.envIntensity);
     let ab = 0, n1 = 0;
     for (const e of fm.engines) { ab = Math.max(ab, e.ab); n1 += e.n1; }
     m.update({

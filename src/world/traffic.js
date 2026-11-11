@@ -37,6 +37,7 @@ export class Traffic {
     const al = AIRLINES[Math.floor(Math.random() * (AIRLINES.length - 1))];
     const cs = makeCallsign(spec, al.icao, String(Math.floor(rnd(100, 2999))));
     const model = new AircraftModel(spec, { detail: 0 });
+    if (this.world.env.envTexture) model.setEnvironment(this.world.env.envTexture, this.world.env.envIntensity);
     const a = { spec, cs, model, kind, end, ap, x: 0, y: 0, z: 0, hdg: 0, pitch: 0, spd: 0, vs: 0, t: 0, gear: 1, flap: 0.6, state: '', dist: 0, alt: 0 };
     if (kind === 'arrival') {
       a.dist = 13 * NM; a.state = 'final'; a.spd = 165 * KT; a.hdg = end.hdg; a.flap = 0.8;

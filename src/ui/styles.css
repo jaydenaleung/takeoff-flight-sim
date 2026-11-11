@@ -88,7 +88,7 @@ input[type=range] { width: 100%; accent-color: var(--acc); }
 
 /* ---------- HUD ---------- */
 .hud { position: absolute; inset: 0; }
-.hud .atc { position: absolute; left: 10px; top: 10px; width: 372px; background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 8px; backdrop-filter: blur(5px); }
+.hud .radiopanel { position: absolute; left: 10px; top: 10px; width: 372px; background: var(--panel); border: 1px solid var(--line); border-radius: 9px; padding: 8px; backdrop-filter: blur(5px); }
 .radio .com { display: flex; align-items: center; gap: 7px; font-family: var(--mono); }
 .radio .lbl { color: var(--dim); font-size: 11px; }
 .radio .act { color: var(--green); font-size: 19px; font-weight: 700; }
@@ -156,7 +156,7 @@ input[type=range] { width: 100%; accent-color: var(--acc); }
 @media (max-width: 1180px) {
   .hud .pfd, .hud .nd { width: 210px; height: 210px; }
   .hud .eicas, .hud .mcp { width: 380px; } .hud .eicas { height: 190px; }
-  .hud .atc { width: 318px; } .hud .log { max-height: 120px; }
+  .hud .radiopanel { width: 318px; } .hud .log { max-height: 120px; }
   .menu { grid-template-columns: 210px 1fr 300px; }
 }
 @media (max-height: 760px) {

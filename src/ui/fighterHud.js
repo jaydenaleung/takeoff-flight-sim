@@ -12,14 +12,17 @@ export function drawFighterHUD(g, W, H, d) {
   g.shadowColor = 'rgba(40,255,110,0.55)'; g.shadowBlur = 4;
   const cx = W / 2, cy = H / 2;
   const ppr = (H / 2) / Math.tan((d.fovDeg * DEG) / 2);      // pixels per radian at the centre
-  const s = clamp(H / 760, 0.7, 1.5);
+  const s = clamp(H / 860, 0.7, 1.5);
+  // the combiner glass ends above the instrument panel
+  g.save();
+  g.beginPath(); g.rect(0, 0, W, d.bottom ?? H); g.clip();
 
   // boresight cross
   g.beginPath(); g.moveTo(cx - 8 * s, cy); g.lineTo(cx - 3 * s, cy); g.moveTo(cx + 3 * s, cy); g.lineTo(cx + 8 * s, cy); g.moveTo(cx, cy - 8 * s); g.lineTo(cx, cy - 3 * s); g.stroke();
 
   // pitch ladder (conformal with the outside world)
   g.save();
-  g.beginPath(); g.rect(cx - 210 * s, cy - 230 * s, 420 * s, 460 * s); g.clip();
+  g.beginPath(); g.rect(cx - 210 * s, cy - 215 * s, 420 * s, 430 * s); g.clip();
   g.translate(cx, cy); g.rotate(-d.roll);
   g.font = FONT(11 * s); g.textBaseline = 'middle';
   for (let p = -90; p <= 90; p += 5) {
@@ -82,5 +85,6 @@ export function drawFighterHUD(g, W, H, d) {
     if (d.ils.gsValid) { g.moveTo(cx - 60 * s, gy); g.lineTo(cx + 60 * s, gy); }
     g.stroke();
   }
+  g.restore();
   g.shadowBlur = 0;
 }

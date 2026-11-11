@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview --port 4173",
-    "test": "node tools/test-physics.mjs",
+    "test": "node tools/test-physics.mjs && node tools/test-airports.mjs && node tools/test-atc.mjs b738 KSFO KLAX",
     "test:browser": "node tools/test-browser.mjs",
     "bake": "python3 tools/bake_terrain.py && python3 tools/bake_airports.py",
     "deploy": "npm run build && npx firebase-tools deploy --only hosting --project takeoff-flight-sim"

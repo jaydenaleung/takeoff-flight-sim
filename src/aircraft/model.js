@@ -121,6 +121,17 @@ export class AircraftModel {
     for (const l of this.lights.landing) { l.visible = !!L.landing && g > 0.9; l.scale.setScalar(l.userData.size * k * 1.3); }
   }
 
+  /** Use a sky environment map for reflections on the airframe. */
+  setEnvironment(tex, intensity) {
+    if (this._env === tex && this._envI === intensity) return;
+    for (const m of Object.values(this.mats)) {
+      if (!m.isMeshStandardMaterial) continue;
+      if (m.envMap !== tex) { m.envMap = tex; m.needsUpdate = true; }
+      m.envMapIntensity = intensity;
+    }
+    this._env = tex; this._envI = intensity;
+  }
+
   dispose() {
     this.group.traverse((o) => {
       if (o.geometry) o.geometry.dispose();

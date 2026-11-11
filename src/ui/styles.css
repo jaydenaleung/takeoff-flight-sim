@@ -1,0 +1,4 @@
+html, body { margin: 0; height: 100%; overflow: hidden; background: #0b1522; font-family: system-ui, sans-serif; }
+#view { position: fixed; inset: 0; display: block; }
+#ui { position: fixed; inset: 0; pointer-events: none; }
+.loading { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #cfe3f5; background: #0b1522; }

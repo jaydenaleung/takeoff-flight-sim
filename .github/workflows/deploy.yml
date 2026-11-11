@@ -1,0 +1,36 @@
+name: Build, test and deploy to Firebase Hosting
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Flight model, airport and ATC tests
+        run: npm test
+      - run: npm run build
+      - name: Deploy to Firebase Hosting
+        # Needs the repository secret FIREBASE_SERVICE_ACCOUNT_TAKEOFF_FLIGHT_SIM
+        # (a service-account key with the Firebase Hosting Admin role).
+        if: ${{ github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_TAKEOFF_FLIGHT_SIM }}
+          projectId: takeoff-flight-sim
+          channelId: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.number) || 'live' }}

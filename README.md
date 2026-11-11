@@ -123,6 +123,54 @@ python3 tools/bake_airports.py
 
 [INSTRUCTIONS.md](INSTRUCTIONS.md) is the step-by-step specification this repository follows.
 
+## Footprint of the build session
+
+This repository was produced in one AI coding session. The figures below are for that session
+at the time this section was written (the last commit adds slightly to them).
+
+### Tokens (measured)
+
+Taken from the session's own usage record.
+
+| | Tokens |
+|---|---:|
+| Output (generated) | 539,460 |
+| Input, uncached | 145 |
+| Input written to the prompt cache | 2,682,036 |
+| Input re-read from the prompt cache | 35,488,299 |
+| **Total processed** | **38,709,940** |
+
+- Cache reads dominate because every model request re-reads the conversation so far.
+- Context in use at the end: 824,210 of 1,000,000 tokens.
+- Reported cost at API list prices: US$71.59.
+- Elapsed time: about 29.5 hours from start to this commit, including long idle waits.
+- Separately, two live test requests to the Claude API for the AI ATC feature used 758 input
+  and 66 output tokens in total.
+
+### Energy and water (estimated, not measured)
+
+Neither is reported for a session, and there is no published per-token figure for the model
+used, so these are order-of-magnitude estimates from the token counts above.
+
+| | Tokens | Assumed Wh per 1,000 tokens | Energy |
+|---|---:|---:|---:|
+| Output | 539,460 | 0.3 – 3 | 0.16 – 1.6 kWh |
+| Cache writes | 2,682,036 | 0.03 – 0.3 | 0.08 – 0.8 kWh |
+| Cache reads | 35,488,299 | 0.003 – 0.03 | 0.11 – 1.1 kWh |
+| **Total** | | | **0.35 – 3.5 kWh (about 1 kWh)** |
+
+- **Energy: roughly 1 kWh**, plausibly 0.35 – 3.5 kWh. The low end of the output rate comes
+  from vendor-published figures of about 0.24 – 0.34 Wh for a typical short chat reply; the
+  high end allows for a larger model working with a very long context. The rates for input
+  are assumptions.
+- **Water: roughly 1 litre**, plausibly 0.4 – 4 litres, using about 1.1 mL of on-site cooling
+  water per Wh (the ratio in Google's published per-prompt figures). Water used to generate
+  the electricity is not included and would add to this.
+- Not included: the cloud container that ran builds and tests, terrain and airport data
+  downloads, and model training.
+
+The true figures could be several times higher or lower than these estimates.
+
 ## Data and credits
 
 - Elevation: Mapzen / AWS Terrain Tiles (open data, including USGS 3DEP and SRTM).

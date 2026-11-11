@@ -18,7 +18,7 @@ class App {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.shadowMap.enabled = settings.quality !== 'low';
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
     this.input = new Input(this.canvas);
     this.flight = null;
     this.state = 'loading';
@@ -50,6 +50,7 @@ class App {
     } else {
       this.state = 'menu';
       this.ui.showMenu();
+      window.__ready = true;
     }
     requestAnimationFrame((t) => this.frame(t));
   }

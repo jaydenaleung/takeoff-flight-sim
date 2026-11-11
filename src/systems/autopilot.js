@@ -95,7 +95,8 @@ export class Autopilot {
     if (dev && this.armed.loc && dev.valid && Math.abs(dev.loc) < 2.2 && Math.abs(wrap180(o.track - this.ils.crs)) < 100) {
       this.lat = 'LOC'; this.armed.loc = false;
     }
-    if (dev && this.armed.gs && this.lat === 'LOC' && dev.gsValid && dev.gs > -0.12 && dev.gs < 0.5) {
+    // glideslope capture, normally from below; from above if only slightly high
+    if (dev && this.armed.gs && this.lat === 'LOC' && dev.gsValid && dev.gs > -0.12 && dev.gs < 0.9) {
       this.vert = 'GS'; this.armed.gs = false;
     }
     const flareH = 14 + 8 * clamp(o.mass / 250000, 0, 1.6);
@@ -179,7 +180,7 @@ export class Autopilot {
       const errKt = (this.targetCas() - o.cas) / KT;
       const max = this.fighter ? 0.86 : 1;
       if (vsCmd > 0 && this.thr > max - 0.03 && errKt > 4) vsCmd *= clamp(1 - (errKt - 4) / 12, -0.3, 1);
-      if (vsCmd < 0 && this.thr < 0.03 && errKt < -6) vsCmd *= clamp(1 + (errKt + 6) / 14, 0.1, 1);
+      if (vsCmd < 0 && this.thr < 0.03 && errKt < -12) vsCmd *= clamp(1 + (errKt + 12) / 28, 0.35, 1);
     }
     const gammaCmd = Math.asin(clamp(vsCmd / V, -0.35, 0.35));
     const lim = (0.28 * G) / V;

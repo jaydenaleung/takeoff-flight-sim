@@ -94,6 +94,15 @@ export class Environment {
     this.clouds = [new THREE.Mesh(cg, this.cloudMat), new THREE.Mesh(cg, this.cloudMat)];
     for (const c of this.clouds) { c.frustumCulled = false; c.renderOrder = 5; scene.add(c); }
 
+    // a small copy of the sky is rendered into an environment map for reflections
+    this.pmrem = new THREE.PMREMGenerator(renderer);
+    this.envScene = new THREE.Scene();
+    this.envSky = new Sky();
+    this.envSky.scale.setScalar(100);
+    this.envScene.add(this.envSky);
+    this.envHour = -99;
+    this.envTarget = null;
+
     this.sunDir = new THREE.Vector3(0, 1, 0);
     this.night = 0;
     this.hour = 12;
@@ -144,6 +153,17 @@ export class Environment {
     this.skyColor.setRGB(lerp(0.005, 0.2, day), lerp(0.008, 0.42, day), lerp(0.02, 0.8, day));
     this.stars.material.opacity = this.night * 0.9;
     this.renderer.toneMappingExposure = lerp(0.34, 0.5, day);
+    if (Math.abs(hour - this.envHour) > 0.2) {
+      this.envHour = hour;
+      const eu = this.envSky.material.uniforms, su = this.sky.material.uniforms;
+      for (const k of ['turbidity', 'rayleigh', 'mieCoefficient', 'mieDirectionalG']) eu[k].value = su[k].value;
+      eu.sunPosition.value.copy(this.sunDir);
+      const old = this.envTarget;
+      this.envTarget = this.pmrem.fromScene(this.envScene, 0, 0.1, 500);
+      this.scene.environment = this.envTarget.texture;
+      this.scene.environmentIntensity = 0.25 + 0.5 * day;
+      if (old) old.dispose();
+    }
   }
 
   /** weather: the Weather object; cam: camera; target: point the shadow follows. */

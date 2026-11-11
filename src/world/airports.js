@@ -404,11 +404,17 @@ export class AirportDB {
 }
 
 /** En-route control centre for a position (approximate real ARTCC boundaries). */
+export const CENTERS = [
+  { name: 'Oakland Center', freq: 132.35 },
+  { name: 'Los Angeles Center', freq: 132.6 },
+  { name: 'Salt Lake Center', freq: 128.55 },
+  { name: 'Albuquerque Center', freq: 128.45 },
+];
 export function centerFor(x, z) {
-  if (x > 300000 && z > 40000) return { name: 'Albuquerque Center', freq: 128.45 };
-  if (z < -330000 && x > -150000) return { name: 'Salt Lake Center', freq: 128.55 };
-  if (z < -20000 && x < 60000) return { name: 'Oakland Center', freq: 132.35 };
-  return { name: 'Los Angeles Center', freq: 132.6 };
+  if (x > 300000 && z > 40000) return CENTERS[3];
+  if (z < -330000 && x > -150000) return CENTERS[2];
+  if (z < -20000 && x < 60000) return CENTERS[0];
+  return CENTERS[1];
 }
 export const CITIES = [
   { name: 'San Francisco', lat: 37.789, lon: -122.401, r: 2600, n: 240, hMax: 230 },

@@ -327,7 +327,7 @@ export function buildAirportScenery(ap) {
 
   // ---- buildings
   const bMat = new THREE.MeshStandardMaterial({ color: 0xb9bdc2, roughness: 0.7, metalness: 0.1 });
-  const glass = new THREE.MeshStandardMaterial({ color: 0x1d2b3a, roughness: 0.15, metalness: 0.7, emissive: 0x443c22, emissiveIntensity: 0 });
+  const glass = new THREE.MeshStandardMaterial({ color: 0x4a6a86, roughness: 0.12, metalness: 0.85, emissive: 0x443c22, emissiveIntensity: 0 });
   const roof = new THREE.MeshStandardMaterial({ color: 0x7c8086, roughness: 0.8 });
   disposables.push(bMat, glass, roof);
   const box = (c, u, hl, hw, h, mat, yBase = 0) => {

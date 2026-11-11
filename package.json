@@ -1,0 +1,25 @@
+{
+  "name": "takeoff-flight-sim",
+  "version": "1.0.0",
+  "description": "Takeoff - Flight Simulator: true-to-scale Boeing, Airbus and fighter aircraft, real terrain, real ATC.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --port 4173",
+    "test": "node tools/test-physics.mjs && node tools/test-airports.mjs && node tools/test-atc.mjs b738 KSFO KLAX",
+    "test:browser": "node tools/test-browser.mjs",
+    "bake": "python3 tools/bake_terrain.py && python3 tools/bake_airports.py",
+    "deploy": "npm run build && npx firebase-tools deploy --only hosting --project takeoff-flight-sim"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "firebase": "^13.2.0",
+    "three": "^0.187.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "vite": "^8.3.7"
+  }
+}

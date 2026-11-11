@@ -99,6 +99,9 @@ npx firebase-tools login
 npm run deploy
 ```
 
+Without the Firebase CLI, `tools/deploy_rest.py` publishes `dist/` through the Hosting REST API
+using a Google OAuth access token in `FIREBASE_ACCESS_TOKEN`.
+
 Or let GitHub do it: add a service-account key with the *Firebase Hosting Admin* role as the
 repository secret `FIREBASE_SERVICE_ACCOUNT_TAKEOFF_FLIGHT_SIM`; the workflow in
 `.github/workflows/deploy.yml` then tests, builds and deploys on every push to `main`.

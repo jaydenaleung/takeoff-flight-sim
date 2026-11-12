@@ -2,7 +2,7 @@
 // traffic, wind and flight-plan line.
 import { DEG, RAD, NM, wrap360, wrap180, clamp } from '../core/units.js';
 
-const FONT = (px, w = 600) => `${w} ${px}px "Roboto Mono", "DejaVu Sans Mono", Consolas, monospace`;
+const FONT = (px, w = 600) => `${w} ${px}px "B612 Mono", "Roboto Mono", "DejaVu Sans Mono", Consolas, monospace`;
 export const ND_RANGES = [1, 2.5, 5, 10, 20, 40, 80, 160, 320];
 
 /**

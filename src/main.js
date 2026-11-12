@@ -1,5 +1,14 @@
 // Takeoff - Flight Simulator: application bootstrap and main loop.
 import * as THREE from 'three';
+import '@fontsource/barlow-condensed/600.css';
+import '@fontsource/barlow-condensed/700.css';
+import '@fontsource/barlow-condensed/800.css';
+import '@fontsource/barlow/400.css';
+import '@fontsource/barlow/500.css';
+import '@fontsource/barlow/600.css';
+import '@fontsource/b612-mono/400.css';
+import '@fontsource/b612-mono/700.css';
+import dsegUrl from 'dseg/fonts/DSEG7-Classic/DSEG7Classic-Bold.woff2?url';
 import './ui/styles.css';
 import { initFirebase } from './firebase.js';
 import { settings, saveSettings } from './core/settings.js';
@@ -30,6 +39,14 @@ class App {
 
   async init() {
     initFirebase();
+    // typefaces used on canvas instruments and LCD windows must be loaded explicitly
+    if (document.fonts) {
+      try {
+        const seg = new FontFace('DSEG7', `url(${dsegUrl})`, { weight: '700' });
+        seg.load().then((f) => document.fonts.add(f), () => {});
+        document.fonts.load('12px "B612 Mono"'); document.fonts.load('700 12px "B612 Mono"');
+      } catch { /* fall back to system fonts */ }
+    }
     this.ui.showLoading(0, 'Starting');
     const data = await loadWorldData((p, msg) => this.ui.showLoading(p * 0.8, msg));
     this.world = new World(this.renderer, data, settings.quality);
@@ -75,6 +92,9 @@ class App {
     this.flight = new Flight(this.world, { spec, dep, dest, start: o.start, weather: o.weather, fuel: o.fuel, payload: o.payload });
     this.views.dist = 0;
     this.views.smoothHdg = null;
+    this.views._lastMode = null;
+    this.world.camera.clearViewOffset();
+    this.world.camera.fov = 52; this.world.camera.updateProjectionMatrix();
     this.views.set(o.view || (o.start === 'gate' ? 'chase' : 'chase'), spec);
     this.state = 'flying';
     this.input.enabled = true;

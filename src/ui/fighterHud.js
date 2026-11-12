@@ -2,7 +2,7 @@
 // speed/altitude boxes, heading tape, g, angle of attack and Mach.
 import { RAD, DEG, wrap360, clamp } from '../core/units.js';
 
-const FONT = (px, w = 600) => `${w} ${px}px "Roboto Mono", "DejaVu Sans Mono", Consolas, monospace`;
+const FONT = (px, w = 600) => `${w} ${px}px "B612 Mono", "Roboto Mono", "DejaVu Sans Mono", Consolas, monospace`;
 
 /** d: { pitch, roll, alpha, beta, ias, alt, hdg (mag), mach, g, vs, ra, fovDeg, gear, ab, ap, ils } */
 export function drawFighterHUD(g, W, H, d) {

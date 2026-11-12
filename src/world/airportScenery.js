@@ -134,6 +134,42 @@ function apronTexture(ap) {
   return mkTex(c);
 }
 
+/** Curtain-wall facade for terminals: glazing bays with mullions, and a matching night-light map. */
+let _facade = null;
+function facadeTextures() {
+  if (_facade) return _facade;
+  const W = 512, H = 128;
+  const mk = (night) => {
+    const c = document.createElement('canvas');
+    c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    g.fillStyle = night ? '#000' : '#c9ccd0'; g.fillRect(0, 0, W, H);
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 16; col++) {
+        const x = col * 32 + 3, y = 14 + row * 37;
+        // the concourse level is lit end to end; offices above only here and there
+        const lit = row === 2 ? (col * 5 + 1) % 7 !== 0 : ((col * 11 + row * 5) * 7 % 16) < 3;
+        const gr = g.createLinearGradient(0, y, 0, y + 28);
+        if (night) {
+          const warm = 150 + ((col * 31 + row * 17) % 50);
+          if (lit) { gr.addColorStop(0, `rgb(${warm + 40},${warm},${warm - 70})`); gr.addColorStop(1, `rgb(${warm - 60},${warm - 85},${warm - 125})`); }
+          else { gr.addColorStop(0, '#06080b'); gr.addColorStop(1, '#030405'); }
+        } else { gr.addColorStop(0, '#5f7d99'); gr.addColorStop(1, '#2c3e52'); }
+        g.fillStyle = gr;
+        g.fillRect(x, y, 26, 28);
+        g.fillStyle = night ? '#000' : '#aeb3b9';
+        g.fillRect(x + 12, y, 2, 28);
+      }
+    }
+    const t = new THREE.CanvasTexture(c);
+    t.wrapS = THREE.RepeatWrapping;
+    if (!night) t.colorSpace = THREE.SRGBColorSpace;
+    t.anisotropy = 4;
+    return t;
+  };
+  return (_facade = { day: mk(false), night: mk(true) });
+}
+
 /** Flat oriented quad: centre c, direction u (unit), half length/width, height y. */
 function quad(c, u, hl, hw, y, vRepeat = 1, flipV = false) {
   const n = { x: -u.z, z: u.x };
@@ -350,9 +386,16 @@ export function buildAirportScenery(ap) {
       rf.scale.set(0.35, 1, 1); group.add(rf);
     }
   } else {
-    box(T.c, T.u, T.hl, T.hw, T.h, bMat);
-    box(T.c, T.u, T.hl + 0.4, T.hw + 0.4, T.h * 0.42, glass, T.h * 0.3);
-    box(T.c, T.u, T.hl * 0.985, T.hw * 0.9, 1.6, roof, T.h);
+    const ft = facadeTextures();
+    const dayMap = ft.day.clone(), nightMap = ft.night.clone();
+    dayMap.repeat.set(Math.round(T.hl / 24), 1); nightMap.repeat.set(Math.round(T.hl / 24), 1);
+    dayMap.needsUpdate = true; nightMap.needsUpdate = true;
+    const facade = new THREE.MeshStandardMaterial({ map: dayMap, roughness: 0.35, metalness: 0.25, emissive: 0xffffff, emissiveMap: nightMap, emissiveIntensity: 0 });
+    disposables.push(facade, dayMap, nightMap);
+    group.userData.facade = facade;
+    box(T.c, T.u, T.hl, T.hw, T.h, facade);
+    box(T.c, T.u, T.hl + 2.5, T.hw + 2.5, 1.2, roof, T.h);
+    box({ x: T.c.x - T.u.z * 0, z: T.c.z }, T.u, T.hl * 0.34, T.hw * 0.7, T.h * 0.3, bMat, T.h + 1.2);
     // piers toward the stands
     const A = ap.apron;
     for (let k = 0; k < ap.stands.length; k += 2) {
@@ -360,6 +403,21 @@ export function buildAirportScenery(ap) {
       const c = { x: s.x + A.n.x * 62 + A.u.x * 20, z: s.z + A.n.z * 62 + A.u.z * 20 };
       box(c, A.n, 26, 2.2, 3.2, bMat, 4.2);
     }
+  }
+  // apron floodlight masts between every second pair of stands
+  const masts = [];
+  {
+    const A = ap.apron, poleG = new THREE.CylinderGeometry(0.28, 0.5, 30, 6), headG = new THREE.BoxGeometry(5, 0.9, 1.4);
+    const fl = new LightSet();
+    for (let k = 0; k + 1 < ap.stands.length; k += 2) {
+      const a = ap.stands[k], b = ap.stands[k + 1];
+      const x = (a.x + b.x) / 2 + A.n.x * 50, z = (a.z + b.z) / 2 + A.n.z * 50;
+      const pole = new THREE.Mesh(poleG, roof); pole.position.set(x, y0 + 15, z); pole.castShadow = true; group.add(pole);
+      const head = new THREE.Mesh(headG, roof); head.position.set(x, y0 + 30.4, z); head.rotation.y = Math.atan2(-A.u.z, A.u.x); group.add(head);
+      for (const o of [-1.8, -0.6, 0.6, 1.8]) fl.add(x + A.u.x * o, y0 + 29.8, z + A.u.z * o, [1, 0.9, 0.72], 1.5);
+      masts.push({ x, y: y0 + 29, z });
+    }
+    group.add(fl.build());
   }
   // control tower
   {
@@ -375,7 +433,7 @@ export function buildAirportScenery(ap) {
     beacon.add(t.x, y0 + h + 9.01, t.z, WHITE, 3.5);
     const bp = beacon.build(); bp.userData.beacon = true; group.add(bp);
   }
-  group.userData = { ap, disposables, glass };
+  group.userData = { ap, disposables, glass, masts, facade: group.userData.facade };
   return group;
 }
 

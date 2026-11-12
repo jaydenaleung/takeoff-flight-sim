@@ -32,7 +32,8 @@ The repository in which this file lives is the result of following it.
 
 ```
 INSTRUCTIONS.md            this file
-README.md                  overview, quick start, controls, deployment
+README.md                  overview, quick start, controls, deployment, session footprint
+CLAUDE.md                  standing rules for AI coding sessions
 package.json               scripts: dev, build, preview, test, test:browser, bake, deploy
 vite.config.js
 firebase.json  .firebaserc Firebase Hosting config
@@ -53,7 +54,8 @@ src/
   world/     projection.js  heightfield.js  terrain.js  terrainWorker.js  water.js  sky.js
              airports.js  airportScenery.js  traffic.js  world.js
   atc/       phraseology.js  atc.js  voice.js  claude.js
-  ui/        ui.js  menu.js  hud.js  pfd.js  nd.js  eicas.js  fighterHud.js  styles.css
+  ui/        ui.js  menu.js  hud.js  pfd.js  nd.js  eicas.js  fighterHud.js  threeView.js
+             styles.css
   audio/     sound.js
 tools/
   bake_terrain.py          builds terrain.png + landcover.jpg
@@ -155,8 +157,12 @@ reports a taxi route to every runway end of every airport.
 6. **Airports** (`airportScenery.js`) – built lazily within 70 km:
    - Runways with painted textures: threshold bars, designator numbers and letters, centreline,
      touchdown-zone and aiming-point markings, edge lines, displaced-threshold arrows, tyre marks.
-   - Taxiways with centrelines, an apron with stand lead-in lines, terminal with piers, control
+   - Taxiways with centrelines, an apron with stand lead-in lines, a glazed terminal (curtain-wall
+     texture with a matching night map so the concourse glows after dark) with piers, control
      tower, military hangars.
+   - Apron floodlight masts between every second pair of stands. Three real point lights hop
+     between the masts nearest the aircraft and fade out with distance, so a parked aircraft
+     sits in a pool of warm light at night without lighting the whole scene.
    - Lighting: runway edge lights (white, yellow for the last 600 m), green threshold / red end
      lights, approach light bars, centreline lights, blue taxiway edge lights, and four-light
      **PAPI** units whose red/white split is computed in the shader from the viewer's real glide
@@ -212,7 +218,8 @@ Models are generated from the specs, in metres, so they are to scale by construc
    stabilators, single or twin canted fins, round or two-dimensional nozzles with an afterburner
    plume, wing-tip missiles on the F-16 and F/A-18E.
 4. Fuselage livery, cabin windows, flight-deck glazing, doors and titles are painted on a canvas
-   texture.
+   texture. Each airline also has tail artwork (chevron, sun, bands or wave) painted on a second
+   texture; the fin and rudder are lofted with chord-wise UVs so the artwork runs across both.
 5. **Animated parts**, all driven by the simulation state: ailerons, elevators/stabilators,
    rudder(s), flaps (Fowler motion), spoilers/speed brake with roll assist, landing gear
    retraction, wheel spin, fan rotation, afterburner, nav/beacon/strobe/landing lights.
@@ -335,7 +342,10 @@ gear, autopilot, views, map and pause.
    take-off configuration, GPWS (SINK RATE, PULL UP, terrain look-ahead, TOO LOW GEAR/FLAPS),
    radio-altitude call-outs 2500…10 and RETARD, autopilot disconnect.
 7. A landing report grades every touchdown (rate of descent, speed, distance from the threshold,
-   centreline offset, runway remaining).
+   centreline offset, runway remaining), shown as a logbook page with a rubber-stamp grade.
+8. **Radio panel** (`hud.js`): styled as a radio management unit – amber seven-segment active and
+   standby frequency windows, a transfer key, station keys, the exchange printed on a strip of
+   paper tape, numbered line-select replies and a scratchpad with a PTT key.
 
 ---
 
@@ -397,16 +407,44 @@ fighters, long and short routes, and local flights.
 
 ---
 
-## 9. Menu and settings (`menu.js`, `ui.js`)
+## 9. Menu and settings (`menu.js`, `ui.js`, `threeView.js`)
 
-1. Title screen: **Takeoff – Flight Simulator**.
-2. Hangar: aircraft list with a live rotating 3D preview and the spec sheet.
-3. Flight setup: departure and destination airports, start position (gate, runway, 10 nm final,
-   cruise), call sign (airline telephony + flight number, or tactical), fuel and payload with
-   gross weight, time of day, weather preset.
-4. Settings: graphics quality, volumes, ATC and pilot voices, realistic damage, automatic
-   frequency swap, AI ATC key and model.
-5. Pause menu: resume, help, restart, reposition, main menu. Crash and flight-complete screens.
+The menu is a dispatch desk laid over the live world, not a separate screen.
+
+1. **Backdrop**: the selected aircraft stands lined up on the departure runway of the selected
+   airport, at the selected time and weather, with a slow low camera orbit (30° lens). Changing
+   aircraft, airport, time or weather changes the scene behind the paperwork.
+2. **Fleet** (left): a departures-board list of the twelve types grouped Boeing / Airbus /
+   Fighters, each with its ICAO type code.
+3. **Type sheet** (bottom): a data sheet for the selected type with a to-scale **three-view
+   drawing** – `threeView.js` renders plan, side and front silhouettes of the real model with an
+   orthographic camera and draws span, length and height dimension lines – and the key figures.
+4. **Flight release** (right): a boarding-pass card with the route in large IATA-style codes,
+   distance, time and runways, start position (gate, runway, 10 nm final, cruise), call sign
+   (airline telephony + flight number, or tactical), fuel and payload with gross weight, time of
+   day and weather, and a tear-off stub with the yellow **FLY** sign.
+5. Settings (paper form): graphics quality, volumes, ATC and pilot voices, realistic damage,
+   automatic frequency swap, AI ATC key and model.
+6. Pause menu: resume, help, restart, reposition, main menu. Crash and flight-complete screens.
+
+### 9.1 Visual language (`styles.css`)
+
+The interface borrows from real aviation objects instead of generic app chrome:
+
+| Element | Reference | Treatment |
+|---|---|---|
+| Panels in flight | avionics faceplates | dark anodised grey, corner screws, engraved labels |
+| Frequency and MCP windows | seven-segment LCDs | amber DSEG7 digits over ghost segments |
+| Mode buttons | Korry switches | light bar that is green when active, cyan when armed |
+| Radio log | printer tape | warm paper, monospaced type |
+| Menu cards, forms, reports | boarding pass, flight release, logbook | paper `#ece6d8`, ink `#1b1d20` |
+| Primary action | runway holding-position sign | black on yellow `#ffc20e` |
+| Accent | high-visibility orange `#d9480f` | wordmark bar, dimension lines, sliders |
+
+Type: Barlow Condensed (headings, in the manner of airport signage), Barlow (text), B612 Mono
+(data – the typeface designed for Airbus flight decks) and DSEG7 (LCD digits), all bundled from
+npm so nothing is fetched from a font CDN. No gradients-on-glass, no rounded pill buttons, no
+emoji icons.
 
 ---
 
@@ -465,7 +503,8 @@ menu.
    and reports zero console errors. Review the screenshots by eye.
 4. One live call through `claude.js` with a real key (kept out of the repository) for each code
    path: a free-form request that maps to an action, and one that must be answered "unable".
-5. Update `README.md` with features, controls and deployment notes.
+5. Update `README.md` with features, controls and deployment notes, and update its session
+   footprint section (see `CLAUDE.md`).
 
 ---
 
